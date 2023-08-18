@@ -38,8 +38,14 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: TileBackground
+    uniqueID: 4007129291
+    locked: 0
   - name: Background
     uniqueID: 233897209
+    locked: 0
+  - name: Ground
+    uniqueID: 3631870203
     locked: 0
   - name: Default
     uniqueID: 0

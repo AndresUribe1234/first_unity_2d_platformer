@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -8,9 +10,28 @@ using UnityEngine.InputSystem;
 public class PlayerControler : MonoBehaviour
 {
     public float walkSpeed = 5f;
+    public float runSpeed = 8f;
+
     Vector2 moveInput;
     public Rigidbody2D rb;
     public Animator animator;
+
+    public float CurrentMoveSpeed  { get {
+            if (IsMoving)
+            {
+                if (IsRunning)
+                {
+                    return runSpeed;
+                } else
+                {
+                    return walkSpeed;
+                }
+            } else 
+            {
+                return 0;
+            }
+        } 
+    }
 
     [SerializeField]
     private bool _isMoving = false;
@@ -20,7 +41,7 @@ public class PlayerControler : MonoBehaviour
         } 
         private set {
             _isMoving = value;
-            animator.SetBool("IsMoving",value);
+            animator.SetBool(AnimationsStrings.IsMoving,value);
 
         } 
     }
@@ -33,12 +54,21 @@ public class PlayerControler : MonoBehaviour
         } 
         private set {
             _isRunning = value;
-            animator.SetBool("IsRunning",value);
+            animator.SetBool(AnimationsStrings.IsRunning,value);
 
         } 
     }
 
+    public bool _isFacingRight = true;
+    public bool IsFacingRight { get {return _isFacingRight; } private set {
+         if(_isFacingRight!=value)
+         {
+            transform.localScale *= new Vector2(-1,1);
+         }
 
+         _isFacingRight=value;
+         
+         } }
 
     private void Awake()
     {
@@ -60,7 +90,7 @@ public class PlayerControler : MonoBehaviour
 
     void FixedUpdate()
     {
-        rb.velocity = new Vector2(moveInput.x*walkSpeed,rb.velocity.y);
+        rb.velocity = new Vector2(moveInput.x*CurrentMoveSpeed,rb.velocity.y);
     }
 
     public void OnMove(InputAction.CallbackContext context)
@@ -68,6 +98,21 @@ public class PlayerControler : MonoBehaviour
         moveInput = context.ReadValue<Vector2>();
 
         IsMoving = moveInput != Vector2.zero;
+
+        SetFacingDirection(moveInput);
+    }
+
+    private void SetFacingDirection(Vector2 moveInput)
+    {
+        if (moveInput.x>0 && !IsFacingRight)
+        {
+            IsFacingRight=true;
+        }
+
+        if (moveInput.x<0 && IsFacingRight)
+        {
+            IsFacingRight=false;
+        }
     }
 
     public void OnRun(InputAction.CallbackContext context)
